@@ -31,7 +31,7 @@ jobs:
       - name: Token build emits CSS
         run: pnpm --filter @wrizo/tokens build
 
-  migrate:
+  test:
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -56,9 +56,22 @@ jobs:
           node-version: 20
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - name: migration 001 applies to a scratch Postgres
+      - name: Migrations 001–003 apply to a scratch Postgres
         run: pnpm --filter @wrizo/api migrate:up
+      - name: API property suite (sealed-linkage, ceiling, canonicalization, atomicity, seeing-law)
+        run: pnpm --filter @wrizo/api test
 
-  # NOTE: the API property suite (sealed-authorship, ceiling rejection, canonicalization
-  # stability, deposit atomicity) and rendered-geometry checks land at AX1 acceptance,
-  # per docs/briefs/ax1-brief.md §6. This scaffold arms the zero-hard-coded-values gate now.
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Install Chromium
+        run: pnpm --filter @wrizo/web exec playwright install --with-deps chromium
+      - name: Rendered-geometry harness (laptop + tablet, both regimes)
+        run: pnpm --filter @wrizo/web test:e2e
