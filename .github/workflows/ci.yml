@@ -1,0 +1,68 @@
+name: ci
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+jobs:
+  no-hardcoded-values:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Zero hard-coded values (apps/web/src)
+        run: node tools/check-no-hardcoded-values.mjs
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Typecheck all workspaces
+        run: pnpm -r typecheck
+      - name: Token build emits CSS
+        run: pnpm --filter @wrizo/tokens build
+
+  migrate:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: wrizo_read
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/wrizo_read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: migration 001 applies to a scratch Postgres
+        run: pnpm --filter @wrizo/api migrate:up
+
+  # NOTE: the API property suite (sealed-authorship, ceiling rejection, canonicalization
+  # stability, deposit atomicity) and rendered-geometry checks land at AX1 acceptance,
+  # per docs/briefs/ax1-brief.md §6. This scaffold arms the zero-hard-coded-values gate now.
