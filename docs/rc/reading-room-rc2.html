@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wrizo | Read — The Reading Room (RC2)</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Jost:wght@400&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Manrope:wght@400;500;600&display=swap');
+
+/* ————— Plateau tokens, two regimes. Placeholders; trued against committed theme foundations. ————— */
+body[data-regime="day"]{
+  --ground:#F2EEE3; --paper:#FBF8F0; --ink:#2E2A24; --soft:#6E675C;
+  --door:#6D6F4E; --door-deep:#565839; --evental:#B4823C; --press:#C25A1F;
+  --rule:#DCD5C4; --band-ink:#F4F2E6; --band-soft:#DCDACA;
+}
+body[data-regime="night"]{
+  --ground:#211E17; --paper:#2B2720; --ink:#E9E2D0; --soft:#A79D89;
+  --door:#8E9068; --door-deep:#B9BB90; --evental:#CDA05A; --press:#E58540;
+  --rule:#3B362B; --band-ink:#EDEADB; --band-soft:#C9C4B0;
+}
+:root{ --ui:'Manrope',system-ui,sans-serif; --prose:'Crimson Pro',Georgia,serif; --mark:'Jost',sans-serif; }
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+body{background:var(--ground);color:var(--ink);font-family:var(--ui);font-size:16px;line-height:1.6;transition:background .25s,color .25s}
+a{color:var(--door-deep);text-decoration-color:var(--door);text-underline-offset:3px}
+a:hover,a:focus-visible{color:var(--evental);text-decoration-color:var(--evental)}
+:focus-visible{outline:2px solid var(--evental);outline-offset:2px}
+
+/* Lane law: rest = olive; brass on reach; orange on the act. */
+.btn{font-family:var(--ui);font-size:.85rem;font-weight:600;letter-spacing:.02em;cursor:pointer;
+  border:1.5px solid var(--door);color:var(--door-deep);background:transparent;
+  padding:.55em 1.2em;border-radius:2px;transition:border-color .15s,color .15s,background .15s}
+.btn:hover,.btn:focus-visible{border-color:var(--evental);color:var(--evental)}
+.btn:active{border-color:var(--press);color:var(--press)}
+.btn.solid{background:var(--door);color:var(--ground)}
+.btn.solid:hover,.btn.solid:focus-visible{background:var(--evental);border-color:var(--evental);color:var(--ground)}
+.btn.solid:active{background:var(--press);border-color:var(--press)}
+.btn.on{background:var(--door);color:var(--ground)}
+.wrap{max-width:1080px;margin:0 auto;padding:0 32px}
+
+header.mast{border-bottom:1px solid var(--rule);background:var(--ground);position:sticky;top:0;z-index:10}
+.mast-in{display:flex;align-items:baseline;justify-content:space-between;padding:20px 0;gap:14px;flex-wrap:wrap}
+.wordmark{font-family:var(--mark);font-weight:400;font-size:1.3rem;letter-spacing:.28em;text-transform:uppercase;white-space:nowrap}
+.wordmark small{font-family:var(--prose);font-style:italic;text-transform:none;letter-spacing:0;
+  font-size:1.02rem;color:var(--soft);margin-left:.9em}
+nav.rooms{display:flex;gap:22px;align-items:center;font-size:.85rem;font-weight:500;flex-wrap:wrap}
+nav.rooms a{text-decoration:none;color:var(--soft)}
+nav.rooms a:hover,nav.rooms a:focus-visible{color:var(--evental)}
+.regime{font-family:var(--ui);font-size:.72rem;font-weight:600;letter-spacing:.08em;cursor:pointer;
+  border:1px solid var(--rule);background:var(--paper);color:var(--soft);padding:.4em .9em;border-radius:2px}
+.regime:hover{border-color:var(--evental);color:var(--evental)}
+
+.featured{padding:72px 0 56px;display:grid;grid-template-columns:1.5fr 1fr;gap:56px;align-items:start}
+.eyebrow{font-size:.72rem;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--door-deep);margin-bottom:18px}
+.featured h1{font-family:var(--prose);font-weight:600;font-size:2.9rem;line-height:1.12;margin-bottom:18px}
+.featured .excerpt{font-family:var(--prose);font-size:1.22rem;line-height:1.65;max-width:34em}
+.featured .excerpt::first-letter{font-size:2.2em;line-height:.9;float:left;padding-right:.12em;font-weight:600}
+.byline{display:flex;align-items:center;gap:12px;margin:26px 0 10px}
+.dot-av{width:34px;height:34px;border-radius:50%;background:var(--door);color:var(--ground);
+  display:flex;align-items:center;justify-content:center;font-weight:600;font-size:.8rem}
+.byline .who{font-size:.9rem}
+.byline .who b{font-weight:600}
+.byline .who span{color:var(--soft);display:block;font-size:.78rem}
+.side-note{border-left:2px solid var(--rule);padding-left:26px}
+.side-note h3{font-family:var(--prose);font-style:italic;font-weight:400;font-size:1.15rem;margin-bottom:10px}
+.side-note p{font-size:.88rem;color:var(--soft);margin-bottom:14px}
+
+.hallmark{display:inline-flex;align-items:center;gap:8px;font-size:.75rem;letter-spacing:.06em;
+  color:var(--door-deep);border:1px solid var(--rule);background:var(--paper);
+  padding:.35em .8em;border-radius:2px;margin-top:14px}
+.hallmark svg path,.mini-mark svg path{stroke:var(--evental);stroke-width:2.2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+
+.wall{padding:12px 0 60px}
+.wall-head{display:flex;align-items:baseline;justify-content:space-between;border-top:1px solid var(--rule);padding-top:26px;margin-bottom:26px}
+.wall-head h2{font-family:var(--prose);font-weight:600;font-size:1.5rem}
+.wall-head .sortline{font-size:.8rem;color:var(--soft)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.card{background:var(--paper);border:1px solid var(--rule);border-radius:3px;padding:24px 22px;display:flex;flex-direction:column;gap:10px;transition:border-color .15s}
+.card:hover{border-color:var(--door)}
+.chip{align-self:flex-start;font-size:.68rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--door-deep);
+  border:1px solid var(--rule);padding:.25em .7em;border-radius:2px}
+.card h3{font-family:var(--prose);font-weight:600;font-size:1.28rem;line-height:1.25}
+.card p{font-family:var(--prose);font-size:.98rem;color:var(--soft);line-height:1.55;flex:1}
+.card .meta{display:flex;align-items:center;justify-content:space-between;font-size:.78rem;color:var(--soft);border-top:1px solid var(--rule);padding-top:12px}
+.card .meta .a{font-weight:600;color:var(--ink)}
+.followrow{display:flex;gap:10px;align-items:center}
+
+.profile{border-top:1px solid var(--rule);padding:56px 0}
+.profile-in{display:grid;grid-template-columns:1fr 1.4fr;gap:48px;align-items:start}
+.pcard{background:var(--paper);border:1px solid var(--rule);border-radius:3px;overflow:hidden}
+.pcard .banner{height:86px;background:linear-gradient(120deg,var(--accent,#6D6F4E),transparent 140%)}
+.pcard .pbody{padding:0 24px 24px}
+.pcard .dot-av{width:56px;height:56px;font-size:1.05rem;margin-top:-28px;border:3px solid var(--paper)}
+.pcard h3{font-family:var(--prose);font-weight:600;font-size:1.35rem;margin:12px 0 4px}
+.pcard .bio{font-family:var(--prose);font-style:italic;color:var(--soft);font-size:.98rem;margin-bottom:16px}
+.pcard .stats{font-size:.78rem;color:var(--soft);margin-bottom:16px}
+.accentrow{display:flex;gap:8px;align-items:center;margin:14px 0 18px}
+.accentrow span{font-size:.72rem;color:var(--soft);margin-right:4px}
+.swatch{width:20px;height:20px;border-radius:50%;border:2px solid transparent;cursor:pointer;padding:0}
+.swatch.sel{border-color:var(--ink)}
+.profile-copy h2{font-family:var(--prose);font-weight:600;font-size:1.6rem;margin-bottom:14px}
+.profile-copy p{color:var(--soft);font-size:.95rem;max-width:36em;margin-bottom:12px}
+
+.margins{border-top:1px solid var(--rule);padding:52px 0}
+.margins h2{font-family:var(--prose);font-weight:600;font-size:1.5rem;margin-bottom:6px}
+.margins .sub{font-size:.85rem;color:var(--soft);margin-bottom:26px}
+.note{border-left:2px solid var(--rule);padding:4px 0 4px 20px;margin-bottom:20px;max-width:44em}
+.note .who{font-size:.8rem;font-weight:600;margin-bottom:4px}
+.note .who span{color:var(--soft);font-weight:400;margin-left:8px}
+.note p{font-family:var(--prose);font-size:1rem}
+.replybox{max-width:44em;margin-top:8px}
+.replybox textarea{width:100%;min-height:74px;background:var(--paper);border:1px solid var(--rule);border-radius:2px;
+  font-family:var(--prose);font-size:1rem;color:var(--ink);padding:12px 14px;resize:vertical}
+.replybox textarea:focus-visible{outline:2px solid var(--evental);outline-offset:0;border-color:var(--evental)}
+.replybox .row{display:flex;justify-content:space-between;align-items:center;margin-top:10px;font-size:.78rem;color:var(--soft)}
+
+.band{background:var(--door);color:var(--band-ink);padding:64px 0;margin-top:20px}
+.band .wrap{display:grid;grid-template-columns:1.4fr 1fr;gap:48px;align-items:center}
+.band h2{font-family:var(--prose);font-weight:400;font-style:italic;font-size:2rem;line-height:1.3;margin-bottom:14px}
+.band p{font-size:.92rem;color:var(--band-soft);max-width:32em}
+.band .doorway{text-align:right}
+.band .btn{border-color:var(--band-ink);color:var(--band-ink)}
+.band .btn:hover,.band .btn:focus-visible{border-color:var(--evental);color:#fff;background:var(--evental)}
+.band .btn:active{background:var(--press);border-color:var(--press)}
+.band .small-door{display:block;margin-top:14px;font-size:.8rem;color:var(--band-soft);text-decoration-color:var(--band-soft)}
+.band .small-door:hover{color:var(--band-ink)}
+footer{padding:34px 0 44px;font-size:.78rem;color:var(--soft);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+
+@media(max-width:900px){
+  .featured,.profile-in,.band .wrap{grid-template-columns:1fr}
+  .grid{grid-template-columns:1fr}
+  .band .doorway{text-align:left}
+  nav.rooms{gap:14px}
+  .wrap{padding:0 20px}
+  .featured h1{font-size:2.2rem}
+}
+</style>
+</head>
+<body data-regime="day">
+
+<header class="mast">
+  <div class="wrap mast-in">
+    <div class="wordmark">Wrizo&thinsp;|&thinsp;Read <small>the Reading Room</small></div>
+    <nav class="rooms" aria-label="Floors">
+      <a href="#wall">On the wall</a>
+      <a href="#rooms">Rooms</a>
+      <a href="#band">The Workshop</a>
+      <button class="regime" id="regimeToggle" aria-label="Switch regime">Night</button>
+      <button class="btn">Sign in</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="featured" aria-label="Hanging this week">
+    <div>
+      <div class="eyebrow">Hanging this week</div>
+      <h1>The Cartographer&rsquo;s Daughter</h1>
+      <p class="excerpt">She learned the coastline before she learned her letters, tracing her father&rsquo;s inked shores with a finger she was not supposed to lick. Maps, he told her, are promises made to people who will never check them. She grew up keeping other kinds.</p>
+      <div class="byline">
+        <div class="dot-av">ME</div>
+        <div class="who"><b>Mara Ellison</b><span>Fiction &middot; 14 min read &middot; hung July 19</span></div>
+        <button class="btn follow" data-name="Mara Ellison">Follow</button>
+      </div>
+      <div class="hallmark" title="This piece passed through the Workshop before it was hung.">
+        <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 14 L8 3 M8 3 L13 12"/></svg>
+        Forged in the Workshop
+      </div>
+    </div>
+    <aside class="side-note">
+      <h3>How a piece gets here</h3>
+      <p>Everything hanging in the Reading Room was finished somewhere. Pieces bearing the hallmark passed through the Workshop &mdash; read blind by working writers, revised, and only then brought into the light.</p>
+      <p>The Reading Room is open to every reader. The floor behind it is open to every writer willing to read.</p>
+      <a href="#band">Enter the Workshop</a>
+    </aside>
+  </section>
+
+  <section class="wall" id="wall" aria-label="On the wall">
+    <div class="wall-head">
+      <h2>On the wall</h2>
+      <div class="sortline">New &middot; from Rooms you follow &middot; by room</div>
+    </div>
+    <div class="grid">
+      <article class="card">
+        <span class="chip">Essay</span>
+        <h3>Notes Against Efficiency</h3>
+        <p>On the cult of the shortest path, and what gets left in the hedgerows when every road is straightened.</p>
+        <div class="meta"><span class="a">J. Okafor</span>
+          <span class="followrow"><span class="mini-mark" title="Forged in the Workshop"><svg width="13" height="13" viewBox="0 0 16 16"><path d="M2 14 L8 3 M8 3 L13 12"/></svg></span> 9 min</span></div>
+        <button class="btn follow" data-name="J. Okafor">Follow</button>
+      </article>
+      <article class="card">
+        <span class="chip">Poetry</span>
+        <h3>Field Recordings, Winter</h3>
+        <p>A sequence in eleven parts, written outdoors, one stanza per morning, gloves on.</p>
+        <div class="meta"><span class="a">Claimed by its Scriptor</span><span>4 min</span></div>
+        <button class="btn follow" data-name="this poet">Follow</button>
+      </article>
+      <article class="card">
+        <span class="chip">Memoir</span>
+        <h3>My Mother the Switchboard</h3>
+        <p>Forty years of other people&rsquo;s conversations passing through her hands, and the one call she kept.</p>
+        <div class="meta"><span class="a">R. Delacroix-Hahn</span>
+          <span class="followrow"><span class="mini-mark" title="Forged in the Workshop"><svg width="13" height="13" viewBox="0 0 16 16"><path d="M2 14 L8 3 M8 3 L13 12"/></svg></span> 17 min</span></div>
+        <button class="btn follow" data-name="R. Delacroix-Hahn">Follow</button>
+      </article>
+    </div>
+  </section>
+
+  <section class="profile" id="rooms" aria-label="Rooms">
+    <div class="profile-in">
+      <div class="pcard" id="pcard" style="--accent:#6D6F4E">
+        <div class="banner"></div>
+        <div class="pbody">
+          <div class="dot-av" style="background:var(--accent)">ME</div>
+          <h3>Mara Ellison</h3>
+          <div class="bio">&ldquo;Maps are promises. I write the checking.&rdquo;</div>
+          <div class="stats">12 pieces hung &middot; 4 forged in the Workshop &middot; writing since March</div>
+          <div class="accentrow" role="group" aria-label="Room accent">
+            <span>Room color</span>
+            <button class="swatch sel" style="background:#6D6F4E" data-c="#6D6F4E" aria-label="Olive"></button>
+            <button class="swatch" style="background:#7A5A44" data-c="#7A5A44" aria-label="Umber"></button>
+            <button class="swatch" style="background:#4E5E6B" data-c="#4E5E6B" aria-label="Slate"></button>
+            <button class="swatch" style="background:#6B4E63" data-c="#6B4E63" aria-label="Plum"></button>
+          </div>
+          <button class="btn solid follow" data-name="Mara Ellison">Follow</button>
+        </div>
+      </div>
+      <div class="profile-copy">
+        <h2>A room of one&rsquo;s own</h2>
+        <p>Every writer keeps a Room in the Reading Room: their hung pieces, their bio in their own hand, their walls set to their own color. Rooms belong to their writers &mdash; the house provides the walls; the writer decides what the room feels like.</p>
+        <p>Readers follow Rooms, not feeds. When a writer you follow hangs something new, it finds you quietly &mdash; no counters, no streaks, no noise.</p>
+        <p style="font-size:.8rem">Try the room color &mdash; the accent is the writer&rsquo;s to set.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="margins" aria-label="Notes in the margin">
+    <h2>Notes in the margin</h2>
+    <div class="sub">On &ldquo;The Cartographer&rsquo;s Daughter&rdquo; &mdash; the Reading Room&rsquo;s guest book keeps a civil hand.</div>
+    <div id="notes">
+      <div class="note">
+        <div class="who">T. Iwu <span>July 20</span></div>
+        <p>The promise-and-checking figure holds the whole piece together. I read the last section twice.</p>
+      </div>
+      <div class="note">
+        <div class="who">a reader <span>July 21</span></div>
+        <p>Came for the maps, stayed for the daughter. Following.</p>
+      </div>
+    </div>
+    <div class="replybox">
+      <textarea id="noteText" placeholder="Leave a note in the margin&hellip;" aria-label="Leave a note in the margin"></textarea>
+      <div class="row">
+        <span>Notes are signed with your reader name. Kindness is house style.</span>
+        <button class="btn" id="postNote">Leave note</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<section class="band" id="band">
+  <div class="wrap">
+    <div>
+      <h2>Every piece hanging here was made in the rooms behind it.</h2>
+      <p>The Workshop is the gated floor below: writers reading writers, blind and honestly, before anything is hung. Reading is the door. Writing is the house.</p>
+    </div>
+    <div class="doorway">
+      <button class="btn">Enter the Workshop &rarr;</button>
+      <a class="small-door" href="#">Readers who write: your first page is waiting in Wrizo&thinsp;|&thinsp;Write.</a>
+    </div>
+  </div>
+</section>
+
+<footer class="wrap">
+  <span>The Reading Room &mdash; the open floor of Wrizo&thinsp;|&thinsp;Read</span>
+  <span>RC2 &middot; Plateau day/night &middot; working names &middot; tokens placeholder, trued on relay</span>
+</footer>
+
+<script>
+document.getElementById('regimeToggle').addEventListener('click',function(){
+  const b=document.body;
+  const night=b.dataset.regime==='day';
+  b.dataset.regime=night?'night':'day';
+  this.textContent=night?'Day':'Night';
+});
+document.querySelectorAll('.follow').forEach(b=>{
+  b.addEventListener('click',()=>{
+    const on=b.classList.toggle('on');
+    b.textContent=on?'Following':'Follow';
+  });
+});
+const pcard=document.getElementById('pcard');
+document.querySelectorAll('.swatch').forEach(s=>{
+  s.addEventListener('click',()=>{
+    document.querySelectorAll('.swatch').forEach(x=>x.classList.remove('sel'));
+    s.classList.add('sel');
+    pcard.style.setProperty('--accent',s.dataset.c);
+  });
+});
+document.getElementById('postNote').addEventListener('click',()=>{
+  const t=document.getElementById('noteText');
+  if(!t.value.trim())return;
+  const d=document.createElement('div');d.className='note';
+  d.innerHTML='<div class="who">you <span>just now</span></div>';
+  const p=document.createElement('p');p.textContent=t.value.trim();d.appendChild(p);
+  document.getElementById('notes').appendChild(d);
+  t.value='';
+});
+</script>
+</body>
+</html>

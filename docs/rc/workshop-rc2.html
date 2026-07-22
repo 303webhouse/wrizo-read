@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wrizo | Read — The Workshop (RC2)</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Jost:wght@400&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=Manrope:wght@400;500;600&family=Rajdhani:wght@500;600&family=Chakra+Petch:wght@400;500;600&family=Atkinson+Hyperlegible:wght@400;700&family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&display=swap');
+
+/* ————— Theme × regime token matrix. Six sets, one structure. Placeholders; trued on relay. ————— */
+body[data-theme="plateau"][data-regime="day"]{
+  --ground:#F2EEE3; --panel:#FBF8F0; --ink:#2E2A24; --soft:#6E675C;
+  --door:#6D6F4E; --door-deep:#565839; --evental:#B4823C; --press:#C25A1F;
+  --rule:#DCD5C4; --seal:#E9E4D4; --glow:none;
+}
+body[data-theme="plateau"][data-regime="night"]{
+  --ground:#211E17; --panel:#2B2720; --ink:#E9E2D0; --soft:#A79D89;
+  --door:#8E9068; --door-deep:#B9BB90; --evental:#CDA05A; --press:#E58540;
+  --rule:#3B362B; --seal:#262218; --glow:none;
+}
+body[data-theme="flux"][data-regime="day"]{
+  --ground:#0B2226; --panel:#102E33; --ink:#CFEFEA; --soft:#7FA8A3;
+  --door:#3FA7E0; --door-deep:#7CC6F0; --evental:#A8E04A; --press:#E0742E;
+  --rule:#1D444B; --seal:#0E282D; --glow:0 0 26px rgba(63,167,224,.10);
+}
+body[data-theme="flux"][data-regime="night"]{
+  --ground:#051013; --panel:#0A1D21; --ink:#B7DDD7; --soft:#6C918C;
+  --door:#3E93C4; --door-deep:#82C4E8; --evental:#9BCC49; --press:#D96C2C;
+  --rule:#14333A; --seal:#081619; --glow:0 0 22px rgba(63,167,224,.06);
+}
+body[data-theme="machina"][data-regime="day"]{
+  --ground:#E9E9E7; --panel:#F5F5F3; --ink:#1F1F1F; --soft:#5B5B5B;
+  --door:#6E6E69; --door-deep:#3D3D39; --evental:#2B2B2B; --press:#C2591B;
+  --rule:#CFCFCB; --seal:#E1E1DE; --glow:none;
+}
+body[data-theme="machina"][data-regime="night"]{
+  --ground:#1B1B1A; --panel:#242423; --ink:#E6E6E3; --soft:#9A9A95;
+  --door:#8A8A84; --door-deep:#C9C9C2; --evental:#E0E0DC; --press:#D2661F;
+  --rule:#33332F; --seal:#202020; --glow:none;
+}
+body[data-theme="plateau"]{--ui:'Manrope',system-ui,sans-serif;--prose:'Crimson Pro',Georgia,serif;--display:'Jost',sans-serif;--disp-track:.28em}
+body[data-theme="flux"]{--ui:'Chakra Petch',sans-serif;--prose:'Crimson Pro',Georgia,serif;--display:'Rajdhani',sans-serif;--disp-track:.2em}
+body[data-theme="machina"]{--ui:'Atkinson Hyperlegible',sans-serif;--prose:'IBM Plex Serif',Georgia,serif;--display:'Atkinson Hyperlegible',sans-serif;--disp-track:.12em}
+
+*{margin:0;padding:0;box-sizing:border-box}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+body{background:var(--ground);color:var(--ink);font-family:var(--ui);font-size:15.5px;line-height:1.6;transition:background .25s,color .25s}
+:focus-visible{outline:2px solid var(--evental);outline-offset:2px}
+a{color:var(--door-deep);text-decoration-color:var(--door);text-underline-offset:3px}
+a:hover,a:focus-visible{color:var(--evental)}
+.wrap{max-width:1060px;margin:0 auto;padding:0 28px}
+
+/* Lane law, all themes, both regimes: rest = door; evental on reach; press is the act. */
+.btn{font-family:var(--ui);font-size:.83rem;font-weight:600;letter-spacing:.02em;cursor:pointer;
+  border:1.5px solid var(--door);color:var(--door-deep);background:transparent;
+  padding:.5em 1.1em;border-radius:2px;transition:all .15s}
+.btn:hover:not(:disabled),.btn:focus-visible:not(:disabled){border-color:var(--evental);color:var(--evental)}
+.btn:active:not(:disabled){border-color:var(--press);color:var(--press)}
+.btn.solid{background:var(--door);color:var(--ground)}
+.btn.solid:hover:not(:disabled),.btn.solid:focus-visible:not(:disabled){background:var(--evental);border-color:var(--evental);color:var(--ground)}
+.btn.solid:active:not(:disabled){background:var(--press);border-color:var(--press)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.held{border-style:dashed;color:var(--soft);cursor:default}
+
+header.door{border-bottom:1px solid var(--rule);position:sticky;top:0;background:var(--ground);z-index:10}
+.door-in{display:flex;align-items:center;justify-content:space-between;padding:16px 0;gap:16px;flex-wrap:wrap}
+.title{font-family:var(--display);font-weight:400;font-size:1.2rem;letter-spacing:var(--disp-track);text-transform:uppercase}
+.title small{font-family:var(--prose);font-style:italic;text-transform:none;letter-spacing:0;font-size:.92rem;color:var(--soft);margin-left:.8em}
+.deskline{display:flex;gap:12px;align-items:center;font-size:.78rem;color:var(--soft);flex-wrap:wrap}
+.deskline .id{border:1px solid var(--rule);padding:.3em .8em;border-radius:2px;background:var(--panel)}
+.deskline .id b{color:var(--ink);font-weight:600}
+.contract{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.contract span{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--soft);margin-right:2px}
+.contract button{font-family:var(--ui);font-size:.72rem;padding:.35em .8em;border:1px solid var(--rule);
+  background:var(--panel);color:var(--soft);cursor:pointer;border-radius:2px}
+.contract button.on{border-color:var(--door);color:var(--ink)}
+.contract button:hover{border-color:var(--evental);color:var(--evental)}
+
+/* Charter at the door */
+.charter{background:var(--panel);border-bottom:1px solid var(--rule)}
+.charter .bar{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:10px 0;font-size:.8rem;color:var(--soft)}
+.charter .bar b{color:var(--ink);font-weight:600}
+.charter .laws{display:none;padding:4px 0 18px;font-size:.85rem;max-width:56em}
+.charter .laws.open{display:block}
+.charter .laws p{margin-bottom:8px;color:var(--soft)}
+.charter .laws p b{color:var(--ink)}
+
+nav.floor{display:flex;gap:4px;border-bottom:1px solid var(--rule);margin-top:6px;flex-wrap:wrap}
+nav.floor button{font-family:var(--ui);font-size:.85rem;font-weight:600;background:none;border:none;cursor:pointer;
+  color:var(--soft);padding:12px 18px;border-bottom:2px solid transparent;margin-bottom:-1px}
+nav.floor button:hover{color:var(--evental)}
+nav.floor button.on{color:var(--ink);border-bottom-color:var(--door)}
+section.room{display:none;padding:34px 0 64px}
+section.room.on{display:block}
+.roomhead{margin-bottom:22px;max-width:52em}
+.roomhead h2{font-family:var(--prose);font-weight:600;font-size:1.5rem;margin-bottom:6px}
+.roomhead p{font-size:.87rem;color:var(--soft)}
+.lexnote{font-size:.7rem;letter-spacing:.06em;color:var(--soft);border:1px dashed var(--rule);border-radius:2px;
+  display:inline-block;padding:.3em .8em;margin-top:10px}
+.lexnote code{font-family:var(--ui);color:var(--door-deep)}
+
+.filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:20px}
+.filters .lbl{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--soft);margin-right:2px}
+.fchip{font-family:var(--ui);font-size:.74rem;font-weight:600;border:1px solid var(--rule);background:var(--panel);
+  color:var(--soft);padding:.35em .85em;border-radius:2px;cursor:pointer}
+.fchip:hover{border-color:var(--evental);color:var(--evental)}
+.fchip.on{border-color:var(--door);color:var(--ink);background:var(--ground)}
+.filters select{font-family:var(--ui);font-size:.78rem;border:1px solid var(--rule);background:var(--panel);
+  color:var(--ink);padding:.35em .6em;border-radius:2px;margin-left:auto}
+.qgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+.qcard{background:var(--panel);border:1px solid var(--rule);border-radius:3px;padding:20px 22px;box-shadow:var(--glow);
+  display:flex;flex-direction:column;gap:10px}
+.qcard .tags{display:flex;gap:8px;flex-wrap:wrap}
+.tag{font-size:.66rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--door-deep);
+  border:1px solid var(--rule);padding:.22em .6em;border-radius:2px}
+.qcard h3{font-family:var(--prose);font-weight:600;font-size:1.22rem}
+.qcard .sealedline{font-family:var(--prose);font-style:italic;font-size:.92rem;color:var(--soft)}
+.qcard .foot{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--rule);
+  padding-top:12px;font-size:.76rem;color:var(--soft);gap:10px;flex-wrap:wrap}
+.qcard.volume{border-style:dashed}
+.qcard.volume .vol-note{font-size:.76rem;color:var(--soft)}
+
+.table-grid{display:grid;grid-template-columns:1.5fr 1fr;gap:34px;align-items:start}
+.piece{background:var(--panel);border:1px solid var(--rule);border-radius:3px;padding:30px 34px;box-shadow:var(--glow)}
+.piece .tags{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.piece h3{font-family:var(--prose);font-weight:600;font-size:1.7rem;margin-bottom:6px}
+.provenance{font-size:.76rem;color:var(--soft);border-bottom:1px solid var(--rule);padding-bottom:14px;margin-bottom:8px}
+.provenance b{color:var(--door-deep);font-weight:600}
+.ctx{margin:10px 0 16px}
+.ctx-toggle{background:none;border:none;font-family:var(--ui);font-size:.78rem;font-weight:600;color:var(--door-deep);cursor:pointer;padding:0;text-decoration:underline;text-underline-offset:3px}
+.ctx-toggle:hover{color:var(--evental)}
+.ctx-board{display:none;margin-top:12px;gap:10px;grid-template-columns:repeat(3,1fr)}
+.ctx-board.open{display:grid}
+.mini{background:var(--ground);border:1px solid var(--rule);border-radius:2px;padding:10px 12px;font-size:.72rem;color:var(--soft)}
+.mini b{display:block;color:var(--ink);font-family:var(--prose);font-size:.85rem;margin-bottom:3px}
+.piece .prose{font-family:var(--prose);font-size:1.08rem;line-height:1.72}
+.piece .prose p{margin-bottom:1em}
+.deskside .panel{background:var(--panel);border:1px solid var(--rule);border-radius:3px;padding:22px;margin-bottom:18px;box-shadow:var(--glow)}
+.deskside h4{font-family:var(--ui);font-size:.72rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--soft);margin-bottom:12px}
+.composer textarea{width:100%;min-height:150px;background:var(--ground);border:1px solid var(--rule);border-radius:2px;
+  font-family:var(--prose);font-size:1rem;color:var(--ink);padding:12px 14px;resize:vertical}
+.composer textarea:focus-visible{outline:2px solid var(--evental);outline-offset:0}
+.railnote{font-size:.72rem;color:var(--soft);margin:8px 0 12px}
+.railnote.hot{color:var(--press)}
+.sealbox{background:var(--seal);border:1px dashed var(--rule);border-radius:2px;padding:16px;font-size:.85rem;color:var(--soft);text-align:center;font-family:var(--prose);font-style:italic}
+.review{border-top:1px solid var(--rule);padding:14px 0}
+.review .rwho{font-size:.78rem;font-weight:600;margin-bottom:6px}
+.review .rwho span{color:var(--soft);font-weight:400;margin-left:8px}
+.review p{font-family:var(--prose);font-size:.95rem;margin-bottom:10px}
+.rateline{display:flex;gap:8px;align-items:center;font-size:.72rem;color:var(--soft);flex-wrap:wrap}
+.rate{font-family:var(--ui);font-size:.7rem;border:1px solid var(--rule);background:none;color:var(--soft);
+  padding:.25em .7em;border-radius:2px;cursor:pointer}
+.rate:hover{border-color:var(--evental);color:var(--evental)}
+.rate.on{border-color:var(--door);color:var(--ink)}
+.flaglink{background:none;border:none;font-size:.7rem;color:var(--soft);cursor:pointer;text-decoration:underline;text-underline-offset:3px;margin-left:auto;font-family:var(--ui)}
+.flaglink:hover{color:var(--press)}
+.flagconfirm{display:none;font-size:.74rem;color:var(--soft);background:var(--ground);border:1px solid var(--rule);border-radius:2px;padding:10px 12px;margin-top:8px}
+.flagconfirm.open{display:block}
+
+.submit-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:34px;align-items:start}
+.field{margin-bottom:18px}
+.field label{display:block;font-size:.72rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--soft);margin-bottom:8px}
+.field input[type=text],.field select{width:100%;font-family:var(--prose);font-size:1.05rem;background:var(--ground);
+  border:1px solid var(--rule);border-radius:2px;color:var(--ink);padding:10px 12px}
+.field input:focus-visible,.field select:focus-visible{outline:2px solid var(--evental);outline-offset:0}
+.wcline{font-size:.85rem;color:var(--soft)}
+.wcline b{color:var(--door-deep)}
+.lawnote{background:var(--panel);border:1px solid var(--rule);border-left:2px solid var(--door);border-radius:2px;
+  padding:14px 16px;font-size:.8rem;color:var(--soft);margin-bottom:14px}
+.lawnote b{color:var(--ink);display:block;margin-bottom:4px;font-size:.82rem}
+.costline{font-family:var(--prose);font-style:italic;font-size:1rem;margin:16px 0 12px}
+.attach{display:flex;gap:10px;align-items:flex-start;font-size:.85rem;margin-bottom:6px}
+.attach input{margin-top:4px;accent-color:var(--door)}
+.attach small{display:block;color:var(--soft);font-size:.75rem}
+
+.tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:8px}
+.tier{background:var(--panel);border:1px solid var(--rule);border-radius:3px;padding:22px;box-shadow:var(--glow)}
+.tier h3{font-family:var(--prose);font-weight:600;font-size:1.15rem;margin-bottom:4px}
+.tier .tdesc{font-size:.75rem;color:var(--soft);margin-bottom:14px}
+.tier ul{list-style:none}
+.tier li{font-size:.9rem;padding:7px 0;border-top:1px solid var(--rule)}
+.tier li span{color:var(--soft);font-size:.74rem;margin-left:6px}
+
+footer{border-top:1px solid var(--rule);padding:22px 0 40px;font-size:.75rem;color:var(--soft);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+
+@media(max-width:880px){
+  .qgrid,.table-grid,.submit-grid,.tiers{grid-template-columns:1fr}
+  .ctx-board.open{grid-template-columns:1fr}
+  .filters select{margin-left:0}
+}
+</style>
+</head>
+<body data-theme="plateau" data-regime="day">
+
+<header class="door">
+  <div class="wrap">
+    <div class="door-in">
+      <div class="title">Wrizo&thinsp;|&thinsp;Read <small>the Workshop &mdash; the gated floor</small></div>
+      <div class="deskline">
+        <span class="id">You read as <b>Vesper Quill</b></span>
+        <span class="id" id="creditChip">Desk credits: <b>1</b></span>
+        <div class="contract" role="group" aria-label="Theme contract">
+          <span>Theme</span>
+          <button class="on tsel" data-t="plateau">Plateau</button>
+          <button class="tsel" data-t="flux">Flux</button>
+          <button class="tsel" data-t="machina">Machina</button>
+          <span style="margin-left:8px">Regime</span>
+          <button class="on rsel" data-r="day">Day</button>
+          <button class="rsel" data-r="night">Night</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="charter">
+    <div class="wrap">
+      <div class="bar">
+        <span><b>The charter at the door</b> &mdash; three laws every reader signs by entering.</span>
+        <button class="btn" id="charterBtn">Read the charter</button>
+      </div>
+      <div class="laws" id="charterLaws">
+        <p><b>The reading-tone law.</b> Hard on the page, soft on the person. Readings serve the work; they never wound the worker.</p>
+        <p><b>The flag law.</b> A &ldquo;reads synthetic&rdquo; flag convenes the floor&rsquo;s committee for a human read. No detector is ever judge. A false flag costs standing.</p>
+        <p><b>The seeing law.</b> The house sees only what its laws require: provenance stays coarse, the Scriptor&rsquo;s seal stays sealed, and every look at the linkage is logged. What the house can and cannot know is published, in plain words.</p>
+      </div>
+    </div>
+  </div>
+  <div class="wrap">
+    <nav class="floor" aria-label="Rooms of the floor">
+      <button class="on" data-room="queue" id="queueTab">The Pile</button>
+      <button data-room="table">Reading Table</button>
+      <button data-room="submit">File a Piece</button>
+      <button data-room="laurels">Laurels</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ————— THE QUEUE (lexicon-themed) ————— -->
+  <section class="room on" id="room-queue">
+    <div class="roomhead">
+      <h2 id="queueName">The Pile</h2>
+      <p>Every piece arrives sealed &mdash; no names, no handles, only the work and its Scriptor. Claim one and it holds for four hours on your table. The floor serves its oldest and least-read first.</p>
+      <div class="lexnote">lexicon token &middot; <code>queue.name</code> &rarr; <code id="lexval">&ldquo;The Pile&rdquo; under Plateau</code></div>
+    </div>
+    <div class="filters">
+      <span class="lbl">Room</span>
+      <button class="fchip" data-f="fiction">Fiction</button>
+      <button class="fchip" data-f="essay">Essay</button>
+      <button class="fchip" data-f="poetry">Poetry</button>
+      <button class="fchip" data-f="memoir">Memoir</button>
+      <span class="lbl" style="margin-left:10px">Hand</span>
+      <button class="fchip" data-f="lyric">Lyric</button>
+      <button class="fchip" data-f="spare">Spare</button>
+      <button class="fchip" data-f="experimental">Experimental</button>
+      <select aria-label="Order"><option>Oldest &amp; least-read first</option><option>Newest</option><option>Shortest</option></select>
+    </div>
+    <div class="qgrid" id="qgrid">
+      <article class="qcard" data-f="memoir lyric">
+        <div class="tags"><span class="tag">Memoir</span><span class="tag">Lyric</span></div>
+        <h3>The Orchard Ledger</h3>
+        <div class="sealedline">by the Scriptor &middot; 6,940 words</div>
+        <div class="foot"><span>Waiting 6 days &middot; no readers yet</span><button class="btn solid claim">Claim &middot; 4h hold</button></div>
+      </article>
+      <article class="qcard" data-f="fiction spare">
+        <div class="tags"><span class="tag">Fiction</span><span class="tag">Spare</span></div>
+        <h3>Untitled (opens on a ferry)</h3>
+        <div class="sealedline">by the Scriptor &middot; 4,980 words</div>
+        <div class="foot"><span>Waiting 4 days &middot; 1 reading so far</span><button class="btn solid claim">Claim &middot; 4h hold</button></div>
+      </article>
+      <article class="qcard" data-f="essay experimental">
+        <div class="tags"><span class="tag">Essay</span><span class="tag">Experimental</span></div>
+        <h3>Against the Second Person</h3>
+        <div class="sealedline">by the Scriptor &middot; 2,315 words</div>
+        <div class="foot"><span>Waiting 2 days &middot; 2 readings so far</span><button class="btn solid claim">Claim &middot; 4h hold</button></div>
+      </article>
+      <article class="qcard" data-f="poetry spare">
+        <div class="tags"><span class="tag">Poetry</span><span class="tag">Spare</span></div>
+        <h3>Salt Year</h3>
+        <div class="sealedline">by the Scriptor &middot; 780 words</div>
+        <div class="foot"><span>Waiting 1 day &middot; 1 reading so far</span><button class="btn solid claim">Claim &middot; 4h hold</button></div>
+      </article>
+      <article class="qcard volume" data-f="fiction lyric">
+        <div class="tags"><span class="tag">Fiction</span><span class="tag">Volume</span></div>
+        <h3>The Hollow Crown of Anna K.</h3>
+        <div class="sealedline">by the Scriptor &middot; 84,120 words &middot; a whole book</div>
+        <div class="vol-note">Volumes live outside the quota &mdash; never served, only chosen. Reading one is a gift, and the floor remembers gifts.</div>
+        <div class="foot"><span>3 readers inside</span><button class="btn">Open by choice</button></div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ————— READING TABLE ————— -->
+  <section class="room" id="room-table">
+    <div class="roomhead">
+      <h2>Reading Table</h2>
+      <p>One piece, held for you. Read it whole, then file what you honestly saw &mdash; hard on the page, soft on the person.</p>
+    </div>
+    <div class="table-grid">
+      <article class="piece">
+        <div class="tags"><span class="tag">Memoir</span><span class="tag">Lyric</span><span class="tag">6,940 words</span></div>
+        <h3>The Orchard Ledger</h3>
+        <div class="provenance"><b>Composed in Wrizo&thinsp;|&thinsp;Write</b> &middot; 23 sessions across five weeks &middot; the Archive &#8470;A3F2&ndash;88C1, sealed July 18 &middot; by the Scriptor</div>
+        <div class="ctx">
+          <button class="ctx-toggle" id="ctxToggle">The Scriptor attached one Board for context &mdash; open it (read-only)</button>
+          <div class="ctx-board" id="ctxBoard">
+            <div class="mini"><b>The ledger itself</b>1963&ndash;1981, grandfather&rsquo;s hand, prices per bushel in the margins</div>
+            <div class="mini"><b>Chapter spine</b>Frost &rarr; graft &rarr; harvest &rarr; auction &rarr; what the frost took back</div>
+            <div class="mini"><b>Questions I&rsquo;m holding</b>Is the mother a chapter or a weather system?</div>
+          </div>
+        </div>
+        <div class="prose">
+          <p>My grandfather counted trees the way other men counted debts &mdash; often, at night, and never out loud. The ledger has a column for everything except the winter of 1968, which appears only as a torn page and a change in the ink.</p>
+          <p>I have been trying to write that torn page for eleven years. This is the twelfth attempt, and the first one where I let the tear stay.</p>
+          <p style="color:var(--soft);font-style:italic">&mdash; the piece continues, 6,412 words &mdash;</p>
+        </div>
+      </article>
+      <aside class="deskside">
+        <div class="panel composer" id="composerPanel">
+          <h4>Your reading</h4>
+          <textarea id="readingText" placeholder="Where did you stop believing? What did the text do to you&hellip;" aria-label="Your reading"></textarea>
+          <div class="railnote" id="railNote">This composer takes keystrokes, not pastes &mdash; the floor reads human.</div>
+          <button class="btn solid" id="fileReading" disabled>File your reading</button>
+        </div>
+        <div class="panel">
+          <h4>The floor&rsquo;s readings</h4>
+          <div class="sealbox" id="sealBox">Two readings are already on this piece &mdash; sealed until you file yours. The floor reads independently.</div>
+          <div id="readings" style="display:none">
+            <div class="review">
+              <div class="rwho">Lantern Jaw <span>Laureate &middot; filed July 19</span></div>
+              <p>The ledger conceit earns its keep, but the auction chapter narrates what the frost chapter already dramatized. I&rsquo;d cut the summary and trust the torn page.</p>
+              <div class="rateline">Useful to you?
+                <button class="rate">Yes</button><button class="rate">Somewhat</button>
+                <button class="flaglink" data-fc="fc1">Reads synthetic &mdash; flag</button>
+              </div>
+              <div class="flagconfirm" id="fc1">Flags convene the floor&rsquo;s committee for a human read. A false flag costs standing. <button class="rate" style="margin-left:6px">Flag it</button> <button class="rate">Withdraw</button></div>
+            </div>
+            <div class="review">
+              <div class="rwho">Quiet Margins <span>Senior Reader &middot; filed July 20</span></div>
+              <p>The mother-as-weather question in the attached Board is the real book. Right now she arrives like a footnote; I wanted her as climate from page one.</p>
+              <div class="rateline">Useful to you?
+                <button class="rate">Yes</button><button class="rate">Somewhat</button>
+                <button class="flaglink" data-fc="fc2">Reads synthetic &mdash; flag</button>
+              </div>
+              <div class="flagconfirm" id="fc2">Flags convene the floor&rsquo;s committee for a human read. A false flag costs standing. <button class="rate" style="margin-left:6px">Flag it</button> <button class="rate">Withdraw</button></div>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ————— FILE A PIECE ————— -->
+  <section class="room" id="room-submit">
+    <div class="roomhead">
+      <h2>File a Piece</h2>
+      <p>From your desk to the floor in one motion &mdash; the Workshop button in Wrizo&thinsp;|&thinsp;Write lands here. Nothing enters by upload; only through the instrument.</p>
+    </div>
+    <div class="submit-grid">
+      <div>
+        <div class="field">
+          <label for="ptitle">Title</label>
+          <input type="text" id="ptitle" value="The Ferryman&rsquo;s Arithmetic">
+        </div>
+        <div class="field">
+          <label>Word count</label>
+          <div class="wcline"><b>6,214</b> of 7,500 &mdash; clears the ceiling. Longer works file as Volumes: reviewable by choice, never served to the quota.</div>
+        </div>
+        <div class="field">
+          <label for="pgenre">Room</label>
+          <select id="pgenre"><option>Fiction</option><option>Essay</option><option>Poetry</option><option>Memoir</option></select>
+        </div>
+        <div class="field">
+          <label>Hand</label>
+          <div class="filters" style="margin:0">
+            <button class="fchip on">Spare</button><button class="fchip">Lyric</button><button class="fchip">Experimental</button>
+          </div>
+        </div>
+        <div class="field">
+          <label>Context</label>
+          <div class="attach">
+            <input type="checkbox" id="attachBoard" checked>
+            <div><label for="attachBoard" style="all:unset;cursor:pointer">Attach one Board, read-only</label>
+            <small>Scrubbed of your name and file metadata. Remember: your planning hand can identify you even when your name cannot.</small></div>
+          </div>
+        </div>
+        <div class="costline" id="costLine">Filing costs 2 credits. You hold 1 &mdash; one more reading opens the door.</div>
+        <button class="btn solid" id="filePiece" disabled>File to the floor</button>
+        <div class="railnote" id="filedNote" style="display:none">Filed. Sealed, deposited in the Archive, and waiting for its first reader.</div>
+      </div>
+      <aside>
+        <div class="lawnote"><b>The Scriptor&rsquo;s seal</b>This piece carries no handle &mdash; not even your reviewer name. No one on the floor can link it to your other work. You alone may claim it later, when you hang it in the Reading Room &mdash; a deliberate, one-way door.</div>
+        <div class="lawnote"><b>The Archive</b>On filing, the text is sealed in the house&rsquo;s memory: content hash, server timestamp, your account. Append-only, chain-anchored daily. In any dispute over origin, the Archive testifies &mdash; it does not judge.</div>
+        <div class="lawnote"><b>Composed in Wrizo&thinsp;|&thinsp;Write</b>The piece travels with its making: sessions, weeks, the shape of its revision &mdash; coarse by law, so your writing hours stay yours. The floor is human because the instrument watched.</div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ————— LAURELS ————— -->
+  <section class="room" id="room-laurels">
+    <div class="roomhead">
+      <h2>Laurels</h2>
+      <p>Laurels accrue from how authors and fellow readers rate your readings. Tiers, not tallies &mdash; the house keeps no scoreboard, and no door on this floor is ever shown locked.</p>
+    </div>
+    <div class="tiers">
+      <div class="tier">
+        <h3>Laureate</h3>
+        <div class="tdesc">Readings the floor returns to. Rare by nature, not by quota.</div>
+        <ul><li>Lantern Jaw</li><li>The Understory</li></ul>
+      </div>
+      <div class="tier">
+        <h3>Senior Reader</h3>
+        <div class="tdesc">A steady, useful hand across many tables.</div>
+        <ul><li>Quiet Margins</li><li>Vesper Quill <span>&mdash; you</span></li><li>Nine Drafts</li></ul>
+      </div>
+      <div class="tier">
+        <h3>Reader</h3>
+        <div class="tdesc">Every laureate began here, reading someone sealed.</div>
+        <ul><li>Cold Open</li><li>The Long Field</li><li>Hapax</li></ul>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="wrap">
+  <span>The Workshop &mdash; the gated floor of Wrizo&thinsp;|&thinsp;Read &middot; entry through Wrizo&thinsp;|&thinsp;Write only</span>
+  <span>RC2 &middot; theme &times; regime matrix live above &middot; tokens placeholder, trued on relay</span>
+</footer>
+
+<script>
+// ————— Lexicon tokens: the queue's name is themed —————
+const LEX={plateau:{q:'The Pile',cap:'\u201CThe Pile\u201D under Plateau'},
+           flux:{q:'Degree Zero',cap:'\u201CDegree Zero\u201D under Flux'},
+           machina:{q:'Intake',cap:'\u201CIntake\u201D under Machina'}};
+function applyLex(t){
+  document.getElementById('queueTab').textContent=LEX[t].q;
+  document.getElementById('queueName').textContent=LEX[t].q;
+  document.getElementById('lexval').textContent=LEX[t].cap;
+}
+// ————— Theme contract —————
+document.querySelectorAll('.tsel').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.tsel').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');
+    document.body.dataset.theme=b.dataset.t;
+    applyLex(b.dataset.t);
+  });
+});
+document.querySelectorAll('.rsel').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('.rsel').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');
+    document.body.dataset.regime=b.dataset.r;
+  });
+});
+// ————— Charter at the door —————
+document.getElementById('charterBtn').addEventListener('click',function(){
+  const l=document.getElementById('charterLaws');
+  const open=l.classList.toggle('open');
+  this.textContent=open?'I\u2019ve read the charter':'Read the charter';
+});
+// ————— Floor nav —————
+document.querySelectorAll('nav.floor button').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('nav.floor button').forEach(x=>x.classList.remove('on'));
+    document.querySelectorAll('section.room').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');
+    document.getElementById('room-'+b.dataset.room).classList.add('on');
+    window.scrollTo({top:0});
+  });
+});
+// ————— Queue filters —————
+const chips=[...document.querySelectorAll('#room-queue .fchip')];
+function applyFilters(){
+  const on=chips.filter(c=>c.classList.contains('on')).map(c=>c.dataset.f);
+  document.querySelectorAll('#qgrid .qcard').forEach(card=>{
+    const f=card.dataset.f.split(' ');
+    card.style.display=(on.length===0||on.every(x=>f.includes(x)))?'flex':'none';
+  });
+}
+chips.forEach(c=>c.addEventListener('click',()=>{c.classList.toggle('on');applyFilters();}));
+// ————— Claims —————
+document.querySelectorAll('.claim').forEach(b=>{
+  b.addEventListener('click',()=>{
+    b.classList.remove('solid');b.classList.add('held');b.disabled=true;
+    b.textContent='Held for you \u00b7 3h 59m';
+  });
+});
+// ————— The economy —————
+let credits=1;
+const chip=document.getElementById('creditChip');
+const costLine=document.getElementById('costLine');
+const filePiece=document.getElementById('filePiece');
+function renderEconomy(){
+  chip.innerHTML='Desk credits: <b>'+credits+'</b>';
+  if(credits>=2){
+    costLine.textContent='Filing costs 2 credits. You hold '+credits+' \u2014 the door is open.';
+    filePiece.disabled=false;
+  }else{
+    costLine.textContent='Filing costs 2 credits. You hold '+credits+' \u2014 one more reading opens the door.';
+    filePiece.disabled=true;
+  }
+}
+renderEconomy();
+// ————— Reading composer: paste rail + the seal —————
+const ta=document.getElementById('readingText');
+const rail=document.getElementById('railNote');
+const fileBtn=document.getElementById('fileReading');
+ta.addEventListener('paste',e=>{
+  e.preventDefault();
+  rail.textContent='The rail held: pasting is closed here. Readings are written where they\u2019re filed.';
+  rail.classList.add('hot');
+  setTimeout(()=>{rail.textContent='This composer takes keystrokes, not pastes \u2014 the floor reads human.';rail.classList.remove('hot');},3000);
+});
+ta.addEventListener('input',()=>{fileBtn.disabled=ta.value.trim().length<80;});
+fileBtn.addEventListener('click',()=>{
+  document.getElementById('composerPanel').innerHTML='<h4>Your reading</h4><div class="sealbox">Filed. The Scriptor will rate its usefulness; so may the floor. One credit earned.</div>';
+  document.getElementById('sealBox').style.display='none';
+  document.getElementById('readings').style.display='block';
+  credits+=1;renderEconomy();
+});
+// ————— Filing a piece —————
+filePiece.addEventListener('click',()=>{
+  credits-=2;renderEconomy();
+  filePiece.disabled=true;
+  document.getElementById('filedNote').style.display='block';
+  costLine.textContent='Filing costs 2 credits. You hold '+credits+' \u2014 read to open the door again.';
+});
+// ————— Ratings & flags —————
+document.addEventListener('click',e=>{
+  if(e.target.classList.contains('rate')&&e.target.closest('.rateline')){
+    e.target.closest('.rateline').querySelectorAll('.rate').forEach(x=>x.classList.remove('on'));
+    e.target.classList.add('on');
+  }
+  if(e.target.classList.contains('flaglink')){
+    document.getElementById(e.target.dataset.fc).classList.toggle('open');
+  }
+});
+// ————— Context board —————
+document.getElementById('ctxToggle').addEventListener('click',()=>{
+  document.getElementById('ctxBoard').classList.toggle('open');
+});
+</script>
+</body>
+</html>
