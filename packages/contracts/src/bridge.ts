@@ -7,26 +7,33 @@ import { z } from "zod";
  */
 export const CONTRACT_ID = "wrizo-bridge/1" as const;
 
-export const BoardCard = z.object({
-  title: z.string().min(1),
-  body: z.string(),
-});
+export const BoardCard = z
+  .object({
+    title: z.string().min(1),
+    body: z.string(),
+  })
+  .strict();
 
-export const BoardBundle = z.object({
-  format: z.literal("wrizo-board/1"),
-  cards: z.array(BoardCard),
-});
+export const BoardBundle = z
+  .object({
+    format: z.literal("wrizo-board/1"),
+    cards: z.array(BoardCard),
+  })
+  .strict();
 
 /**
  * Provenance is coarse by law — session count and span only. Fine-grained timing is a
- * fingerprint (the seeing law, foundations §9). `.strict()` on the envelope rejects any
- * finer-than-session field a caller might attach.
+ * fingerprint (the seeing law, foundations §9). Every level is `.strict()`, including the
+ * nested objects below: an unknown key anywhere is REJECTED, never silently stripped, so a
+ * finer-than-session field cannot ride in on a nested object (Fable review item 1).
  */
-export const Provenance = z.object({
-  sessions: z.number().int().nonnegative(),
-  span_weeks: z.number().int().nonnegative(),
-  composed_in_wrizo: z.literal(true),
-});
+export const Provenance = z
+  .object({
+    sessions: z.number().int().nonnegative(),
+    span_weeks: z.number().int().nonnegative(),
+    composed_in_wrizo: z.literal(true),
+  })
+  .strict();
 
 export const SubmissionEnvelope = z
   .object({
