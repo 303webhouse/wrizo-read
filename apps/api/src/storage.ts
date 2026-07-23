@@ -55,7 +55,10 @@ export interface StorageConfig {
 }
 
 export function createStorage(config: StorageConfig): Storage {
-  if (config.endpoint && config.bucket) {
+  const complete = Boolean(
+    config.endpoint && config.bucket && config.accessKeyId && config.secretAccessKey,
+  );
+  if (complete) {
     const client = new S3Client({
       endpoint: config.endpoint,
       forcePathStyle: true,
@@ -64,6 +67,18 @@ export function createStorage(config: StorageConfig): Storage {
     });
     return new S3Storage(client, config.bucket);
   }
-  // No object-storage credentials configured: fall back to in-memory (dev/test only).
+
+  // Fail closed (Fable finding A). An Archive that issues receipts and hashes while snapshots
+  // evaporate on restart lies by omission — the one failure mode a ledger cannot have. In-memory
+  // is permitted ONLY in an explicitly opted-in, non-production environment; anything else throws
+  // at startup rather than booting a lying Archive.
+  const memoryAllowed =
+    process.env.NODE_ENV !== "production" && process.env.ALLOW_MEMORY_STORAGE === "true";
+  if (!memoryAllowed) {
+    throw new Error(
+      "object storage is not configured: set S3_ENDPOINT, S3_BUCKET, S3_ACCESS_KEY_ID and " +
+        "S3_SECRET_ACCESS_KEY. For dev/test only (never in production), set ALLOW_MEMORY_STORAGE=true.",
+    );
+  }
   return new MemoryStorage();
 }

@@ -40,8 +40,9 @@ DATABASE_URL=postgres://postgres:postgres@localhost:5432/wrizo_read pnpm --filte
 pnpm dev
 ```
 
-With no `S3_*` configured the API uses an in-memory object store (dev/test only — never the
-filesystem). Set `S3_ENDPOINT` + `S3_BUCKET` + keys for a real S3-compatible bucket.
+Object storage fails closed: all four `S3_*` vars are required, and an incomplete config throws
+at startup. For dev/test without S3, opt in explicitly with `ALLOW_MEMORY_STORAGE=true` (a
+non-production, in-memory store — never the filesystem, never production).
 
 **Tests & tools**
 
