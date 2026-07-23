@@ -9,6 +9,8 @@ import {
 } from "@wrizo/contracts";
 import { ApiError } from "../errors";
 import { newId } from "../ids";
+import { balance, record } from "../credits";
+import { postCost } from "../economy";
 import type { Storage } from "../storage";
 
 const QUEUE_WORD_CEILING = 7500;
@@ -69,9 +71,20 @@ export async function runIntake(
     await deps.storage.put(boardBundleKey, JSON.stringify(scrubbed), "application/json; charset=utf-8");
   }
 
+  // The credit gate lives inside the transaction (brief §5): the ceiling was already checked
+  // above (a piece refused at the ceiling burns nothing), the snapshot is uploaded (a harmless
+  // orphan if we roll back), and now — under a per-account advisory lock that closes the
+  // double-spend race — the balance is checked and the debit posts in the same transaction as
+  // submissions/authorship/deposits.
+  const needed = postCost(envelope.kind);
   const client = await deps.pool.connect();
   try {
     await client.query("BEGIN");
+    await client.query(`SELECT pg_advisory_xact_lock(hashtext($1))`, [accountId]);
+    const held = await balance(client, accountId);
+    if (held < needed) {
+      throw new ApiError("insufficient_credits", 409, { needed, held });
+    }
     await client.query(
       `INSERT INTO submissions
          (id, kind, title, word_count, status, rooms, hands, provenance, board_bundle_key)
@@ -98,6 +111,12 @@ export async function runIntake(
        RETURNING deposited_at`,
       [depositId, submissionId, digest, CANONICALIZATION_VERSION, snapshotKey, accountId],
     );
+    await record(client, {
+      accountId,
+      delta: -needed,
+      reason: envelope.kind === "volume" ? "volume_post" : "queue_post",
+      submissionId,
+    });
     await client.query("COMMIT");
 
     const row = deposited.rows[0];
