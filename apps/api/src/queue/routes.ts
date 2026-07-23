@@ -4,6 +4,7 @@ import type { Pool } from "pg";
 import type { Storage } from "../storage";
 import { ApiError, unauthorized } from "../errors";
 import { requireWriter } from "../auth/plugin";
+import { requireUuidParam } from "../http";
 import { dealOne, listQueue, listVolumes, type Sort } from "./service";
 import { claim, myClaims, release } from "./claims";
 import { pieceDetail } from "./pieces";
@@ -67,7 +68,7 @@ export function registerQueueRoutes(app: FastifyInstance, deps: QueueDeps): void
     async (req) => {
       const account = req.account;
       if (!account) throw unauthorized();
-      const { submission_id } = req.params as { submission_id: string };
+      const submission_id = requireUuidParam((req.params as { submission_id: string }).submission_id);
       await release(pool, account.id, submission_id);
       return { released: true };
     },
@@ -82,7 +83,7 @@ export function registerQueueRoutes(app: FastifyInstance, deps: QueueDeps): void
   app.get("/api/v1/workshop/pieces/:id", { preHandler: requireWriter }, async (req) => {
     const account = req.account;
     if (!account) throw unauthorized();
-    const { id } = req.params as { id: string };
+    const id = requireUuidParam((req.params as { id: string }).id);
     return pieceDetail(pool, storage, account.id, id);
   });
 }
