@@ -94,3 +94,56 @@ export function serializeClaim(row: Record<string, unknown>): ClaimView {
     expires_at: iso(row.expires_at),
   };
 }
+
+// AX3 — a reading, as seen on an unsealed piece. Attribution is the reviewer pseudonym only
+// (reader_name); the account id is INTERNAL and never appears. Per-reading rating counts are
+// attached only for the reading's owner (brief §3–4).
+export interface RatingCounts {
+  useful: number;
+  somewhat: number;
+}
+export interface ReadingView {
+  reading_id: string;
+  reader_name: string;
+  body: string;
+  word_count: number;
+  filed_at: string;
+  own: boolean;
+  ratings?: RatingCounts;
+}
+
+export function serializeReading(
+  row: Record<string, unknown>,
+  own: boolean,
+  ratings?: RatingCounts,
+): ReadingView {
+  const view: ReadingView = {
+    reading_id: row.id as string,
+    reader_name: row.reader_name as string,
+    body: row.body as string,
+    word_count: row.word_count as number,
+    filed_at: iso(row.filed_at),
+    own,
+  };
+  if (own && ratings) view.ratings = ratings;
+  return view;
+}
+
+// A credit-ledger line, own-data only. No account id.
+export interface LedgerEntry {
+  delta: number;
+  reason: string;
+  reading_id: string | null;
+  submission_id: string | null;
+  created_at: string;
+}
+
+export function serializeLedger(row: Record<string, unknown>): LedgerEntry {
+  return {
+    delta: row.delta as number,
+    reason: row.reason as string,
+    reading_id: (row.reading_id as string | null) ?? null,
+    submission_id: (row.submission_id as string | null) ?? null,
+    created_at: iso(row.created_at),
+  };
+}
