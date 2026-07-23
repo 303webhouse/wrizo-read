@@ -12,6 +12,8 @@ async function makeWriter(request: APIRequestContext, who: string, nonce: string
   const reg = await request.post(`${API}/api/v1/auth/register`, { data: { email, password: "password123" } });
   const { token } = await reg.json();
   await request.post(`${API}/api/v1/auth/writer`, { headers: { authorization: `Bearer ${token}` }, data: {} });
+  // AX3: posting costs credits — fund the fixture author via the dev faucet.
+  await request.post(`${API}/api/v1/dev/credits`, { headers: { authorization: `Bearer ${token}` }, data: { amount: 100 } });
   return token;
 }
 

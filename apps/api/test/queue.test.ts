@@ -14,7 +14,7 @@ suite("the Queue — serving, claims, text access (requires Postgres)", () => {
 
   beforeEach(async () => {
     await pool.query(
-      `TRUNCATE claims, deposits, authorship, submissions, sessions, credentials, roles, pseudonyms, accounts, archive_access_log CASCADE`,
+      `TRUNCATE reading_ratings, readings, credit_ledger, claims, deposits, authorship, submissions, sessions, credentials, roles, pseudonyms, accounts, archive_access_log CASCADE`,
     );
     storage = new MemoryStorage();
     app = build({ pool, storage });
@@ -37,6 +37,13 @@ suite("the Queue — serving, claims, text access (requires Postgres)", () => {
       url: "/api/v1/auth/writer",
       headers: { authorization: `Bearer ${token}` },
       payload: {},
+    });
+    // AX3: posting now costs credits — fund the writer via the dev faucet so intake succeeds.
+    await app.inject({
+      method: "POST",
+      url: "/api/v1/dev/credits",
+      headers: { authorization: `Bearer ${token}` },
+      payload: { amount: 100 },
     });
     return { token: token as string, accountId: account_id as string };
   }

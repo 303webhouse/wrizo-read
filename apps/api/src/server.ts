@@ -9,6 +9,7 @@ import { registerAuthRoutes } from "./auth/routes";
 import { registerHealth } from "./routes/health";
 import { registerSubmissions } from "./routes/submissions";
 import { registerQueueRoutes } from "./queue/routes";
+import { registerReadingRoutes } from "./readings/routes";
 import type { IntakeDeps } from "./intake/pipeline";
 
 export type BuildDeps = IntakeDeps;
@@ -18,6 +19,8 @@ export function build(deps: BuildDeps): FastifyInstance {
 
   app.setErrorHandler((err, _req, reply) => {
     if (err instanceof ApiError) {
+      // Server-fault ApiErrors (e.g. snapshot_missing — riding note #2) must be logged, always.
+      if (err.status >= 500) app.log.error({ err, code: err.code }, err.code);
       return reply.code(err.status).send({ error: err.code, ...(err.detail ?? {}) });
     }
     app.log.error(err);
@@ -29,6 +32,7 @@ export function build(deps: BuildDeps): FastifyInstance {
   registerAuthRoutes(app, deps.pool);
   registerSubmissions(app, deps);
   registerQueueRoutes(app, deps);
+  registerReadingRoutes(app, deps.pool);
   return app;
 }
 

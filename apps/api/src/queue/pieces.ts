@@ -40,7 +40,13 @@ export async function pieceDetail(
   );
   const snapshotKey = deposit.rows[0]?.snapshot_key as string | undefined;
   const snapshot = snapshotKey ? await storage.get(snapshotKey) : null;
-  const text = snapshot ? snapshot.toString("utf8") : "";
+  // Riding note #2 (AX2 review §4): a deposit whose snapshot cannot be fetched is a ledger-
+  // integrity event, not silent empty text. Fail loudly in every environment (the error handler
+  // logs 500s), so the Archive never quietly serves an empty piece over a real deposit.
+  if (!snapshot) {
+    throw new ApiError("snapshot_missing", 500, { submission_id: submissionId });
+  }
+  const text = snapshot.toString("utf8");
 
   let boardBundle: unknown | null = null;
   const boardKey = row.board_bundle_key as string | null;

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { lex } from "@wrizo/tokens";
 import { api, ApiError } from "./api";
 import { Queue } from "./Queue";
@@ -13,12 +13,26 @@ export function App() {
   const [session, setSession] = useState<Session | null>(null);
   const [route, setRoute] = useState<Route>({ name: "queue" });
   const [regime, setRegime] = useState<Regime>("day");
+  const [balance, setBalance] = useState<number | null>(null);
 
   function toggleRegime() {
     const next: Regime = regime === "day" ? "night" : "day";
     setRegime(next);
     document.documentElement.setAttribute("data-regime", next);
   }
+
+  const refreshCredits = useCallback(async () => {
+    if (!session) return;
+    try {
+      setBalance((await api.credits(session.token)).balance);
+    } catch {
+      // leave the chip as-is
+    }
+  }, [session]);
+
+  useEffect(() => {
+    void refreshCredits();
+  }, [refreshCredits]);
 
   if (!session) return <Door onEnter={setSession} regime={regime} onToggleRegime={toggleRegime} />;
 
@@ -43,6 +57,11 @@ export function App() {
           </button>
         </nav>
         <span className="deskline">
+          {balance !== null ? (
+            <span className="credit-chip" title="One credit earned per accepted reading; a queue post costs two.">
+              {balance} credit{balance === 1 ? "" : "s"}
+            </span>
+          ) : null}
           <span className="id">
             <b>{session.pseudonym}</b>
           </span>
@@ -61,7 +80,12 @@ export function App() {
         ) : route.name === "holds" ? (
           <Holds token={session.token} onOpen={(id) => setRoute({ name: "table", id })} />
         ) : (
-          <Reading token={session.token} submissionId={route.id} onBack={() => setRoute({ name: "queue" })} />
+          <Reading
+            token={session.token}
+            submissionId={route.id}
+            onBack={() => setRoute({ name: "queue" })}
+            onFiled={refreshCredits}
+          />
         )}
       </main>
     </div>

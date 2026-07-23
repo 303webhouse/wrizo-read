@@ -51,6 +51,26 @@ export interface Piece {
   provenance: Card["provenance"];
 }
 
+export interface Reading {
+  reading_id: string;
+  reader_name: string;
+  body: string;
+  word_count: number;
+  filed_at: string;
+  own: boolean;
+  ratings?: { useful: number; somewhat: number };
+}
+
+export type Seal = { sealed: true; count: number } | { sealed: false; readings: Reading[] };
+
+export interface LedgerEntry {
+  delta: number;
+  reason: string;
+  reading_id: string | null;
+  submission_id: string | null;
+  created_at: string;
+}
+
 export const api = {
   register: (email: string, password: string) =>
     req("/auth/register", { method: "POST", body: JSON.stringify({ email, password }) }) as Promise<{
@@ -84,4 +104,18 @@ export const api = {
     req("/workshop/claims/mine", { method: "GET" }, token) as Promise<Hold[]>,
   piece: (token: string, id: string) =>
     req(`/workshop/pieces/${id}`, { method: "GET" }, token) as Promise<Piece>,
+  readings: (token: string, id: string) =>
+    req(`/workshop/pieces/${id}/readings`, { method: "GET" }, token) as Promise<Seal>,
+  fileReading: (token: string, id: string, body: string) =>
+    req(`/workshop/pieces/${id}/readings`, { method: "POST", body: JSON.stringify({ body }) }, token) as Promise<{
+      reading: Reading;
+      balance: number;
+    }>,
+  rate: (token: string, readingId: string, value: "useful" | "somewhat") =>
+    req(`/workshop/readings/${readingId}/rate`, { method: "POST", body: JSON.stringify({ value }) }, token) as Promise<{
+      rated: boolean;
+      rater_kind: "author" | "peer";
+    }>,
+  credits: (token: string) =>
+    req("/workshop/credits", { method: "GET" }, token) as Promise<{ balance: number; recent: LedgerEntry[] }>,
 };

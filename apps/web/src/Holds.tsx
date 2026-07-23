@@ -22,8 +22,12 @@ export function Holds({ token, onOpen }: { token: string; onOpen: (id: string) =
   }, [refresh]);
 
   async function release(id: string) {
-    await api.release(token, id);
-    await refresh();
+    try {
+      await api.release(token, id);
+    } finally {
+      // Whether it released or had already returned to the floor on expiry, re-read the holds.
+      await refresh();
+    }
   }
 
   if (loading) return <p className="empty">Counting your holds…</p>;
@@ -36,19 +40,37 @@ export function Holds({ token, onOpen }: { token: string; onOpen: (id: string) =
         <h2 className="roomtitle">My holds</h2>
       </div>
       <ul className="holds">
-        {holds.map((h) => (
-          <li className="hold" key={h.submission_id}>
-            <span className="hold-time">{remainingLabel(h.expires_at, now)}</span>
-            <span className="hold-actions">
-              <button className="btn solid" type="button" onClick={() => onOpen(h.submission_id)}>
-                Read
-              </button>
-              <button className="btn" type="button" onClick={() => release(h.submission_id)}>
-                Release
-              </button>
-            </span>
-          </li>
-        ))}
+        {holds.map((h) => {
+          // Riding note #3: an expired hold is presented as returned to the floor, never as a
+          // raw error — the release-expired 404 stays server-side.
+          const expired = new Date(h.expires_at).getTime() <= now;
+          return (
+            <li className="hold" key={h.submission_id}>
+              {expired ? (
+                <>
+                  <span className="hold-time">returned to the floor</span>
+                  <span className="hold-actions">
+                    <button className="btn ghost" type="button" onClick={() => release(h.submission_id)}>
+                      Dismiss
+                    </button>
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span className="hold-time">{remainingLabel(h.expires_at, now)}</span>
+                  <span className="hold-actions">
+                    <button className="btn solid" type="button" onClick={() => onOpen(h.submission_id)}>
+                      Read
+                    </button>
+                    <button className="btn" type="button" onClick={() => release(h.submission_id)}>
+                      Release
+                    </button>
+                  </span>
+                </>
+              )}
+            </li>
+          );
+        })}
       </ul>
     </div>
   );
