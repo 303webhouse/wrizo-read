@@ -44,11 +44,20 @@ Object storage fails closed: all four `S3_*` vars are required, and an incomplet
 at startup. For dev/test without S3, opt in explicitly with `ALLOW_MEMORY_STORAGE=true` (a
 non-production, in-memory store — never the filesystem, never production).
 
+**The whole floor, one command** — no Postgres or Docker required (starts an embedded Postgres,
+migrates, boots the API, seeds through the publish API, serves the web). See
+[`docs/sittings/ax2-first-sitting.md`](docs/sittings/ax2-first-sitting.md).
+
+```bash
+pnpm floor        # then open http://localhost:5173  (Ctrl+C stops everything)
+```
+
 **Tests & tools**
 
 ```bash
 pnpm --filter @wrizo/api test          # property suite (needs DATABASE_URL; skips without one)
-pnpm --filter @wrizo/web test:e2e      # rendered-geometry harness (laptop + tablet, both regimes)
+pnpm test:local                        # the property suite on an embedded Postgres (no setup)
+pnpm test:e2e:local                    # the full browser flow on an embedded Postgres
 pnpm check                             # zero-hard-coded-values gate over apps/web/src
 pnpm verify:deposit <snapshot> --expect <sha256hex>   # reproduce a deposit hash independently
 ```
