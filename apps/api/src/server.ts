@@ -8,6 +8,7 @@ import { registerAuthContext } from "./auth/plugin";
 import { registerAuthRoutes } from "./auth/routes";
 import { registerHealth } from "./routes/health";
 import { registerSubmissions } from "./routes/submissions";
+import { registerQueueRoutes } from "./queue/routes";
 import type { IntakeDeps } from "./intake/pipeline";
 
 export type BuildDeps = IntakeDeps;
@@ -27,6 +28,7 @@ export function build(deps: BuildDeps): FastifyInstance {
   registerHealth(app);
   registerAuthRoutes(app, deps.pool);
   registerSubmissions(app, deps);
+  registerQueueRoutes(app, deps);
   return app;
 }
 

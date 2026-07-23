@@ -16,10 +16,15 @@
     "check:tokens": "node tools/check-no-hardcoded-values.mjs",
     "check": "pnpm check:tokens",
     "migrate": "pnpm --filter @wrizo/api migrate:up",
-    "verify:deposit": "tsx tools/verify-deposit.ts"
+    "verify:deposit": "tsx tools/verify-deposit.ts",
+    "floor": "node scripts/floor.mjs",
+    "test:local": "node scripts/with-embedded-db.mjs pnpm --filter @wrizo/api test",
+    "test:e2e:local": "node scripts/with-embedded-db.mjs pnpm --filter @wrizo/web test:e2e",
+    "seed": "tsx tools/seed-floor.ts"
   },
   "devDependencies": {
     "@wrizo/contracts": "workspace:*",
+    "embedded-postgres": "18.4.0-beta.17",
     "tsx": "^4.19.2",
     "typescript": "^5.6.3"
   }

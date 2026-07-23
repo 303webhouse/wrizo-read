@@ -63,6 +63,21 @@ jobs:
 
   e2e:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: wrizo_read
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/wrizo_read
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -71,7 +86,9 @@ jobs:
           node-version: 20
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - name: Apply migrations (the API server the harness boots needs the schema)
+        run: pnpm --filter @wrizo/api migrate:up
       - name: Install Chromium
         run: pnpm --filter @wrizo/web exec playwright install --with-deps chromium
-      - name: Rendered-geometry harness (laptop + tablet, both regimes)
+      - name: Floor e2e — login, filter, claim, read, release (laptop + tablet, both regimes)
         run: pnpm --filter @wrizo/web test:e2e

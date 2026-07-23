@@ -1,6 +1,5 @@
-/* Shell styling — semantics only. Never a raw hex or px here; the token layer is the source
-   (foundations §10). The zero-hard-coded-values gate (tools/check-no-hardcoded-values.mjs)
-   enforces this over apps/web/src. */
+/* Floor styling — semantics only. Never a raw hex or px here; the token layer is the source
+   (foundations §10). The zero-hard-coded-values gate enforces this over apps/web/src. */
 
 .shell {
   min-height: 100vh;
@@ -22,6 +21,9 @@
   padding: 1rem var(--gutter);
   background: var(--panel);
   border-bottom: var(--hairline) solid var(--rule);
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .mark {
@@ -29,12 +31,62 @@
   font-size: var(--size-title);
   letter-spacing: var(--disp-track);
   text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.topnav {
+  display: flex;
+  gap: 0.5rem;
+  flex: 1;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.navlink {
+  font-family: var(--display);
+  letter-spacing: var(--disp-track);
+  text-transform: uppercase;
+  font-size: var(--size-small);
+  background: transparent;
+  border: none;
+  color: var(--soft);
+  cursor: pointer;
+  padding: 0.3em 0.6em;
+  border-bottom: var(--border) solid transparent;
+  transition: color var(--dur-quick) var(--ease);
+}
+.navlink:hover,
+.navlink:focus-visible {
+  color: var(--evental);
+}
+.navlink.on {
+  color: var(--ink);
+  border-bottom-color: var(--door);
+}
+
+.deskline {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  flex-wrap: wrap;
+  font-size: var(--size-small);
+  color: var(--soft);
+}
+.deskline .id {
+  border: var(--hairline) solid var(--rule);
+  padding: 0.3em 0.8em;
+  border-radius: var(--radius);
+  background: var(--ground);
+}
+.deskline .id b {
+  color: var(--ink);
+  font-weight: 600;
 }
 
 .floor {
   max-width: var(--measure);
   margin: 0 auto;
-  padding: 3rem var(--gutter);
+  padding: 2.5rem var(--gutter) 4rem;
 }
 
 .eyebrow {
@@ -57,32 +109,6 @@
   color: var(--soft);
 }
 
-.lanes {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-top: 2rem;
-}
-
-.chip {
-  font-size: var(--size-small);
-  padding: 0.4em 0.9em;
-  border: var(--border) solid var(--rule);
-  border-radius: var(--radius);
-}
-.chip.rest {
-  color: var(--door-deep);
-  border-color: var(--door);
-}
-.chip.reach {
-  color: var(--evental);
-  border-color: var(--evental);
-}
-.chip.act {
-  color: var(--press);
-  border-color: var(--press);
-}
-
 /* Lane law: rest wears the door; the evental lane arrives on reach; press is the act. */
 .btn {
   font-family: var(--ui);
@@ -96,14 +122,315 @@
   padding: 0.5em 1.1em;
   transition:
     color var(--dur-quick) var(--ease),
-    border-color var(--dur-quick) var(--ease);
+    border-color var(--dur-quick) var(--ease),
+    background var(--dur-quick) var(--ease);
 }
-.btn:hover,
-.btn:focus-visible {
+.btn:hover:not(:disabled),
+.btn:focus-visible:not(:disabled) {
   color: var(--evental);
   border-color: var(--evental);
 }
-.btn:active {
+.btn:active:not(:disabled) {
   color: var(--press);
   border-color: var(--press);
+}
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.btn.solid {
+  background: var(--door);
+  color: var(--ground);
+}
+.btn.solid:hover:not(:disabled),
+.btn.solid:focus-visible:not(:disabled) {
+  background: var(--evental);
+  border-color: var(--evental);
+  color: var(--ground);
+}
+.btn.solid:active:not(:disabled) {
+  background: var(--press);
+  border-color: var(--press);
+}
+.btn.ghost {
+  border-color: transparent;
+  color: var(--soft);
+}
+.btn.ghost:hover:not(:disabled),
+.btn.ghost:focus-visible:not(:disabled) {
+  color: var(--evental);
+}
+
+/* ————— The room head, filters ————— */
+.roomhead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 1.5rem 0 1rem;
+  border-bottom: var(--hairline) solid var(--rule);
+  padding-bottom: 0.5rem;
+}
+.roomtitle {
+  font-family: var(--display);
+  letter-spacing: var(--disp-track);
+  text-transform: uppercase;
+  font-size: var(--size-title);
+  font-weight: 400;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+.fchip {
+  font-size: var(--size-small);
+  cursor: pointer;
+  background: transparent;
+  color: var(--soft);
+  border: var(--hairline) solid var(--rule);
+  border-radius: 2em;
+  padding: 0.3em 0.9em;
+  transition:
+    color var(--dur-quick) var(--ease),
+    border-color var(--dur-quick) var(--ease);
+}
+.fchip:hover,
+.fchip:focus-visible {
+  color: var(--evental);
+  border-color: var(--evental);
+}
+.fchip.on {
+  color: var(--ground);
+  background: var(--door);
+  border-color: var(--door);
+}
+.sortsel {
+  margin-left: auto;
+  display: inline-flex;
+  gap: 0.5em;
+  align-items: center;
+  font-size: var(--size-small);
+  color: var(--soft);
+}
+.sortsel select {
+  font-family: var(--ui);
+  font-size: var(--size-small);
+  color: var(--ink);
+  background: var(--ground);
+  border: var(--hairline) solid var(--rule);
+  border-radius: var(--radius);
+  padding: 0.3em 0.5em;
+}
+
+/* ————— Cards ————— */
+.qgrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+  gap: 1rem;
+}
+.qcard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  background: var(--panel);
+  border: var(--hairline) solid var(--rule);
+  border-radius: var(--radius);
+  padding: 1.1rem 1.2rem;
+}
+.qcard.volume {
+  border-style: dashed;
+}
+.qcard h3 {
+  font-family: var(--prose);
+  font-weight: 600;
+  font-size: 1.3rem;
+  line-height: 1.25;
+}
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+.tag {
+  font-size: var(--size-small);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--door-deep);
+  border: var(--hairline) solid var(--rule);
+  border-radius: 2em;
+  padding: 0.15em 0.7em;
+}
+.sealedline {
+  font-family: var(--prose);
+  font-style: italic;
+  color: var(--soft);
+  font-size: var(--size-small);
+}
+.vol-note {
+  font-family: var(--prose);
+  font-size: var(--size-small);
+  color: var(--soft);
+}
+.foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: auto;
+  padding-top: 0.4rem;
+  font-size: var(--size-small);
+  color: var(--soft);
+}
+
+.notice {
+  color: var(--press);
+  font-size: var(--size-small);
+  margin: 0.5rem 0;
+}
+.empty {
+  font-family: var(--prose);
+  font-style: italic;
+  color: var(--soft);
+  max-width: 42rem;
+  margin: 2rem 0;
+}
+
+/* ————— The Door form ————— */
+.door-floor {
+  max-width: 30rem;
+}
+.doorform {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: var(--size-small);
+  color: var(--soft);
+}
+.field input {
+  font-family: var(--ui);
+  font-size: var(--size-0);
+  color: var(--ink);
+  background: var(--panel);
+  border: var(--hairline) solid var(--rule);
+  border-radius: var(--radius);
+  padding: 0.6em 0.7em;
+}
+.field input:focus-visible {
+  outline: var(--border) solid var(--evental);
+  outline-offset: 0.1rem;
+}
+.doorbtns {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* ————— Reading Table ————— */
+.table-view {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+.table-head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  border-bottom: var(--hairline) solid var(--rule);
+  padding-bottom: 1rem;
+}
+.table-title {
+  font-family: var(--prose);
+  font-weight: 600;
+  font-size: 2rem;
+}
+.provenance {
+  font-family: var(--prose);
+  font-style: italic;
+  color: var(--soft);
+  font-size: var(--size-small);
+}
+.board {
+  border: var(--hairline) solid var(--rule);
+  border-radius: var(--radius);
+  padding: 0.75rem 1rem;
+  background: var(--panel);
+}
+.board-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+.board-card {
+  border: var(--hairline) solid var(--rule);
+  border-radius: var(--radius);
+  padding: 0.6rem 0.75rem;
+  background: var(--ground);
+}
+.board-card-title {
+  font-weight: 600;
+  font-size: var(--size-small);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--door-deep);
+}
+.board-card-body {
+  font-family: var(--prose);
+  color: var(--soft);
+  font-size: var(--size-small);
+}
+.prose {
+  font-family: var(--prose);
+  font-size: 1.12rem;
+  line-height: 1.7;
+  max-width: 40rem;
+}
+.prose p {
+  margin-bottom: 1em;
+  white-space: pre-wrap;
+}
+.composer-seat {
+  border-top: var(--hairline) solid var(--rule);
+  padding-top: 1rem;
+  font-family: var(--prose);
+  font-style: italic;
+  color: var(--soft);
+}
+
+/* ————— My holds ————— */
+.holds {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.hold {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  border: var(--hairline) solid var(--rule);
+  border-radius: var(--radius);
+  padding: 0.8rem 1rem;
+  background: var(--panel);
+}
+.hold-time {
+  font-family: var(--prose);
+  color: var(--ink);
+}
+.hold-actions {
+  display: flex;
+  gap: 0.5rem;
 }
