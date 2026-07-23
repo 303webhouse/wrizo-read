@@ -1,10 +1,17 @@
+import { randomBytes } from "node:crypto";
 import type { Pool, PoolClient } from "pg";
-import { newId } from "../ids";
 import type { AuthedAccount, Role } from "./types";
 
 type Queryable = Pool | PoolClient;
 
 const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
+
+// A bearer session token: 256 bits of CSPRNG entropy, base64url. Not a UUID — a v7 UUID leaks a
+// timestamp and carries sub-128-bit entropy, below the floor for a bearer secret (Fable finding B).
+// Stored as text (migration 004).
+export function mintSessionToken(): string {
+  return randomBytes(32).toString("base64url");
+}
 
 // Server sessions (brief §5). The bearer token IS the session id — a minimal, real credential;
 // magic-link can replace the login path later without schema churn.
@@ -12,7 +19,7 @@ export async function createSession(
   db: Queryable,
   accountId: string,
 ): Promise<{ token: string; expiresAt: Date }> {
-  const token = newId();
+  const token = mintSessionToken();
   const expiresAt = new Date(Date.now() + SESSION_TTL_MS);
   await db.query(`INSERT INTO sessions (id, account_id, expires_at) VALUES ($1, $2, $3)`, [
     token,
