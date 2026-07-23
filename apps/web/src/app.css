@@ -434,3 +434,124 @@
   display: flex;
   gap: 0.5rem;
 }
+
+/* ————— The credit chip ————— */
+.credit-chip {
+  font-size: var(--size-small);
+  color: var(--door-deep);
+  border: var(--border) solid var(--door);
+  border-radius: 2em;
+  padding: 0.25em 0.8em;
+  white-space: nowrap;
+}
+
+/* ————— Readings: the seal, the composer, the list ————— */
+.readings {
+  margin-top: 1.5rem;
+  border-top: var(--hairline) solid var(--rule);
+  padding-top: 1.25rem;
+}
+.sealbox {
+  font-family: var(--prose);
+  font-style: italic;
+  color: var(--soft);
+  background: var(--panel);
+  border: var(--hairline) dashed var(--rule);
+  border-radius: var(--radius);
+  padding: 1rem 1.2rem;
+  margin-bottom: 1rem;
+}
+.composer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.composer-input {
+  font-family: var(--prose);
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: var(--ink);
+  background: var(--panel);
+  border: var(--hairline) solid var(--rule);
+  border-radius: var(--radius);
+  padding: 0.8rem 0.9rem;
+  resize: vertical;
+  width: 100%;
+}
+.composer-input:focus-visible {
+  outline: var(--border) solid var(--evental);
+  outline-offset: 0.1rem;
+}
+.railnote {
+  font-size: var(--size-small);
+  color: var(--soft);
+  transition: color var(--dur-quick) var(--ease);
+}
+.rail-flare .railnote {
+  color: var(--press);
+  font-weight: 600;
+}
+.composer-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.wcline {
+  font-size: var(--size-small);
+  color: var(--soft);
+}
+
+.readinglist {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+.reading {
+  border: var(--hairline) solid var(--rule);
+  border-radius: var(--radius);
+  padding: 0.9rem 1.1rem;
+  background: var(--panel);
+}
+.reading.own {
+  border-color: var(--door);
+}
+.reading-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.4rem;
+}
+.reading-name {
+  font-family: var(--display);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: var(--size-small);
+  color: var(--ink);
+}
+.reading-badge {
+  font-size: var(--size-small);
+  color: var(--door-deep);
+  border: var(--hairline) solid var(--door);
+  border-radius: 2em;
+  padding: 0.05em 0.6em;
+}
+.reading-meta {
+  font-size: var(--size-small);
+  color: var(--soft);
+}
+.reading-body {
+  font-family: var(--prose);
+  line-height: 1.65;
+  white-space: pre-wrap;
+}
+.rateline {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.6rem;
+}
