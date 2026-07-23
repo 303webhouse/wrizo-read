@@ -1,0 +1,109 @@
+/* Shell styling — semantics only. Never a raw hex or px here; the token layer is the source
+   (foundations §10). The zero-hard-coded-values gate (tools/check-no-hardcoded-values.mjs)
+   enforces this over apps/web/src. */
+
+.shell {
+  min-height: 100vh;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--ui);
+  font-size: var(--size-0);
+  line-height: var(--leading);
+  transition:
+    background var(--dur-regime) var(--ease),
+    color var(--dur-regime) var(--ease);
+}
+
+.door {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem var(--gutter);
+  background: var(--panel);
+  border-bottom: var(--hairline) solid var(--rule);
+}
+
+.mark {
+  font-family: var(--display);
+  font-size: var(--size-title);
+  letter-spacing: var(--disp-track);
+  text-transform: uppercase;
+}
+
+.floor {
+  max-width: var(--measure);
+  margin: 0 auto;
+  padding: 3rem var(--gutter);
+}
+
+.eyebrow {
+  font-size: var(--size-small);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--soft);
+}
+
+.queue {
+  margin: 0.25rem 0 1rem;
+  font-family: var(--prose);
+  font-weight: 600;
+  font-size: 2.4rem;
+}
+
+.note {
+  max-width: 42rem;
+  font-family: var(--prose);
+  color: var(--soft);
+}
+
+.lanes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 2rem;
+}
+
+.chip {
+  font-size: var(--size-small);
+  padding: 0.4em 0.9em;
+  border: var(--border) solid var(--rule);
+  border-radius: var(--radius);
+}
+.chip.rest {
+  color: var(--door-deep);
+  border-color: var(--door);
+}
+.chip.reach {
+  color: var(--evental);
+  border-color: var(--evental);
+}
+.chip.act {
+  color: var(--press);
+  border-color: var(--press);
+}
+
+/* Lane law: rest wears the door; the evental lane arrives on reach; press is the act. */
+.btn {
+  font-family: var(--ui);
+  font-size: var(--size-small);
+  font-weight: 600;
+  cursor: pointer;
+  background: transparent;
+  color: var(--door-deep);
+  border: var(--border) solid var(--door);
+  border-radius: var(--radius);
+  padding: 0.5em 1.1em;
+  transition:
+    color var(--dur-quick) var(--ease),
+    border-color var(--dur-quick) var(--ease);
+}
+.btn:hover,
+.btn:focus-visible {
+  color: var(--evental);
+  border-color: var(--evental);
+}
+.btn:active {
+  color: var(--press);
+  border-color: var(--press);
+}

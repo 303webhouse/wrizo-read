@@ -1,0 +1,26 @@
+{
+  "name": "wrizo-read",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Wrizo | Read — the group platform (Reading Room + Workshop). Server-first, public.",
+  "packageManager": "pnpm@10.28.2",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "pnpm -r build",
+    "dev": "pnpm --filter @wrizo/tokens build && pnpm --parallel --filter @wrizo/api --filter @wrizo/web dev",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "check:tokens": "node tools/check-no-hardcoded-values.mjs",
+    "check": "pnpm check:tokens",
+    "migrate": "pnpm --filter @wrizo/api migrate:up",
+    "verify:deposit": "tsx tools/verify-deposit.ts"
+  },
+  "devDependencies": {
+    "@wrizo/contracts": "workspace:*",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
+  }
+}

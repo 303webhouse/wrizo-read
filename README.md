@@ -21,3 +21,41 @@ committed revision to that file.
 Read is its own building: its own repository, its own Railway project, its own Postgres. The Read
 tree is **never shared with the Write tree** — one checkout per agent. No Read code lives in the
 Write repo beyond the bridge client. Report = push; schema merges wait on Nick's explicit word.
+
+## Develop
+
+**Prerequisites:** Node 20 (`.nvmrc`), pnpm (`corepack enable`), Postgres 16.
+
+```bash
+pnpm install
+
+# Point the API at a database and object storage.
+cp apps/api/.env.example apps/api/.env      # edit DATABASE_URL (and S3_* for real storage)
+createdb wrizo_read                          # or use your DATABASE_URL's database
+
+# Apply the schema (migrations 001–003).
+DATABASE_URL=postgres://postgres:postgres@localhost:5432/wrizo_read pnpm --filter @wrizo/api migrate:up
+
+# Boot api + web (builds tokens first).
+pnpm dev
+```
+
+Object storage fails closed: all four `S3_*` vars are required, and an incomplete config throws
+at startup. For dev/test without S3, opt in explicitly with `ALLOW_MEMORY_STORAGE=true` (a
+non-production, in-memory store — never the filesystem, never production).
+
+**Tests & tools**
+
+```bash
+pnpm --filter @wrizo/api test          # property suite (needs DATABASE_URL; skips without one)
+pnpm --filter @wrizo/web test:e2e      # rendered-geometry harness (laptop + tablet, both regimes)
+pnpm check                             # zero-hard-coded-values gate over apps/web/src
+pnpm verify:deposit <snapshot> --expect <sha256hex>   # reproduce a deposit hash independently
+```
+
+## Monorepo
+
+- `packages/tokens` — the theme × regime token matrix (`tokens.json` is the source of truth) + `lex()`.
+- `packages/contracts` — the `wrizo-bridge/1` envelope (zod) and canonicalization v1.
+- `apps/api` — Fastify service: auth, the publish endpoint, the transactional Archive intake, migrations.
+- `apps/web` — the token-driven shell.
