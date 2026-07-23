@@ -2,11 +2,16 @@
 // deposit. Shared so the API and tools/verify-deposit.ts produce byte-identical input and
 // therefore the same SHA-256 (brief §4, acceptance §7.3). Pure: no I/O, no crypto here.
 //
-// Rules (v1):
+// v1 is FROZEN the day the first real deposit lands: changing any rule would break hash
+// reproducibility for every prior deposit. The code below is the spec — keep this comment true
+// to it (Fable finding C).
+//
+// Rules (v1), exactly as implemented:
 //   - Unicode NFC
-//   - line endings -> LF
-//   - trailing whitespace trimmed per line
-//   - a single trailing newline, no leading/trailing blank padding
+//   - CRLF and lone CR line endings -> LF
+//   - trailing whitespace trimmed per line (space, tab, form feed, vertical tab, U+00A0)
+//   - trailing blank lines collapsed to exactly one final LF
+//   - leading content is preserved verbatim — leading blank lines are NOT stripped
 export const CANONICALIZATION_VERSION = "v1" as const;
 
 export function canonicalize(text: string): string {
