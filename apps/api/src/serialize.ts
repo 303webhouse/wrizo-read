@@ -49,3 +49,48 @@ export function serializeDeposit(row: Record<string, unknown>): PublicDeposit {
     deposited_at: iso(row.deposited_at),
   };
 }
+
+// AX2 — the Queue card. Scriptor-sealed: id, title, kind, word_count, rooms, hands, coarse
+// provenance, created_at, and the claim count ("N readers so far"). Never any linkage, never a
+// pseudonym. Built field-by-field from a whitelist — no row spread (brief §2).
+export interface QueueCard {
+  submission_id: string;
+  title: string;
+  kind: string;
+  word_count: number;
+  rooms: string[];
+  hands: string[];
+  provenance: unknown;
+  created_at: string;
+  readers_so_far: number;
+}
+
+export function serializeCard(row: Record<string, unknown>): QueueCard {
+  return {
+    submission_id: row.id as string,
+    title: row.title as string,
+    kind: row.kind as string,
+    word_count: row.word_count as number,
+    rooms: (row.rooms as string[]) ?? [],
+    hands: (row.hands as string[]) ?? [],
+    provenance: row.provenance,
+    created_at: iso(row.created_at),
+    readers_so_far: Number(row.claim_count ?? 0),
+  };
+}
+
+// The claimant's own view of a hold. No claim id, no account id — the reader does not need the
+// claim's primary key, and account linkage is sealed (brief §3).
+export interface ClaimView {
+  submission_id: string;
+  claimed_at: string;
+  expires_at: string;
+}
+
+export function serializeClaim(row: Record<string, unknown>): ClaimView {
+  return {
+    submission_id: row.submission_id as string,
+    claimed_at: iso(row.claimed_at),
+    expires_at: iso(row.expires_at),
+  };
+}
