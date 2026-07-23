@@ -1,5 +1,6 @@
 import EmbeddedPostgres from "embedded-postgres";
 import { spawnSync } from "node:child_process";
+import { rmSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -12,8 +13,11 @@ const DB = "wrizo_read";
 export const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 export async function startEmbeddedDb() {
+  // Non-persistent cluster: clear any leftover data dir (e.g. from a killed run) so initdb runs.
+  const databaseDir = resolve(repoRoot, ".localdb");
+  rmSync(databaseDir, { recursive: true, force: true });
   const pg = new EmbeddedPostgres({
-    databaseDir: resolve(repoRoot, ".localdb"),
+    databaseDir,
     user: "postgres",
     password: "postgres",
     port: PORT,
